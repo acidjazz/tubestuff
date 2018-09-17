@@ -1,10 +1,10 @@
 <?php
 
-namespace acidjazz\TubeThings;
+namespace acidjazz\TubeStuff;
 /**
  * YouTube URL and API support
  *
- * @package TubeThings
+ * @package TubeStuff
  * @author kevin olson <acidjazz@gmail.com>
  * @version 0.1
  * @copyright (C) 2018 kevin olson <acidjazz@gmail.com>
@@ -16,7 +16,7 @@ use Google_Service_YouTube;
 use Goutte\Client;
 use App\Models\Video;
 
- class TubeThings {
+ class TubeStuff {
 
    /**
     * Google Client
@@ -31,7 +31,7 @@ use App\Models\Video;
    public function __construct()
    {
       $this->client = new Google_Client();
-      $this->client->setApplicationName("TubeThings");
+      $this->client->setApplicationName("TubeStuff");
       $this->client->setDeveloperKey(config('services.google.api_key'));
       $this->youtube = new Google_Service_YouTube($this->client);
    }

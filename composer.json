@@ -1,13 +1,13 @@
 
 {
-  "name": "acidjazz/tubethings",
+  "name": "acidjazz/tubestuff",
   "type": "library",
   "description": "YouTube URL and API helpers for Laravel",
   "license": "Apache-2.0",
   "keywords": [
     "YouTube", "API", "Laravel", "PHP"
   ],
-  "Homepage": "https://github.com/acidjazz/tubethings",
+  "Homepage": "https://github.com/acidjazz/tubestuff",
   "License": "APACHE",
   "authors": [
     {
