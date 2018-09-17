@@ -14,7 +14,6 @@ namespace acidjazz\TubeStuff;
 use Google_Client;
 use Google_Service_YouTube;
 use Goutte\Client;
-use App\Models\Video;
 
  class TubeStuff {
 
@@ -139,15 +138,6 @@ use App\Models\Video;
           'cover' => self::cover($item->id->videoId),
           'added' => false,
         ];
-      }
-
-      $added = Video::whereIn('id', array_keys($results['videos']))
-        ->where('user_id', $user->id)
-        ->get()
-        ->pluck('id');
-
-      foreach ($added as $id) {
-        $results['videos'][$id]['added'] = true;
       }
 
       return $results;
