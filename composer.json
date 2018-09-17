@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "acidjazz\\TubeStuff\\": "src"
+      "acidjazz\\tubestuff\\": "src"
     }
   }
 }
