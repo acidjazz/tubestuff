@@ -1,0 +1,28 @@
+
+{
+  "name": "acidjazz/TubeThings",
+  "type": "library",
+  "description": "YouTube URL and API helpers for Laravel",
+  "license": "Apache-2.0",
+  "keywords": [
+    "YouTube", "API", "Laravel", "PHP"
+  ],
+  "Homepage": "https://github.com/acidjazz/tubethings",
+  "License": "APACHE",
+  "authors": [
+    {
+      "name": "Kevin Olson",
+      "email": "acidjazz@gmail.com"
+    }
+  ],
+  "require": {
+    "illuminate/support": "5.1.* || 5.2.* || 5.3.* || 5.4.* || 5.5.* || 5.6.* || 5.7.*",
+    "google/apiclient": "^2.2",
+    "php": "~7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "acidjazz\\TubeThings\\": "src"
+    }
+  }
+}
