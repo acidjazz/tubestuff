@@ -81,6 +81,20 @@ use App\Models\Video;
 
         return ['type' => $type, 'id' => $id];
     }
+
+    /**
+     * Determine if an id is valid
+     * @param String $id
+     * @return Boolean
+     */
+    private function isChannelId($id)
+    {
+      if ($id[0] === 'U' && $id[1] === 'C') {
+        return true;
+      }
+      return false;
+    }
+
     /**
      * Get a channel ID from a user
      *
@@ -172,6 +186,28 @@ use App\Models\Video;
       }
 
       return $videos;
+    }
+
+    /**
+     * Grab the most popular video of a channel
+     * @param String $id
+     * @return Object
+     */
+    private function getPopularVideo($id) {
+      $videos = [];
+      $listSearch = $this->youtube->search->listSearch(['snippet'], [
+        'channelId' => $id, 
+        'type' => 'video',
+        'order' => 'viewCount',
+        'maxResults' => 1,
+      ]);
+
+      if (isset($listSearch->items[0])) {
+        return $listSearch->items[0]->id->videoId;
+      }
+
+      return false;
+
     }
 
  }
