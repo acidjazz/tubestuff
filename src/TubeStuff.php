@@ -27,27 +27,51 @@ use Goutte\Client;
     */
    private $youtube;
 
-   public function __construct($API_KEY)
+   public function __construct($API_KEY=false)
    {
-      $this->client = new Google_Client();
-      $this->client->setApplicationName("TubeStuff");
-      $this->client->setDeveloperKey($API_KEY);
-      $this->youtube = new Google_Service_YouTube($this->client);
+     if ($API_KEY !== false) {
+        $this->client = new Google_Client();
+        $this->client->setApplicationName("TubeStuff");
+        $this->client->setDeveloperKey($API_KEY);
+        $this->youtube = new Google_Service_YouTube($this->client);
+     }
    }
 
     /**
-     * parse different urls and determine types and ids
+     * parse different string and determine types and ids
      *
-     * @param String $url
+     * @param String $string
      * @return Array
      */
-    public function parse($url)
+    public function parse($string)
     {
 
         $type = 'unknown';
         $id = false;
 
-        $parsed = parse_url($url);
+        preg_match("/[a-zA-Z0-9_-]+/", $string, $output);
+
+        if (count($output) > 0) {
+
+          if ($this->isChannelId($string)) {
+            $type = 'channel';
+            $id = $string;
+          } else if ($this->isVideoId($string)) {
+            $type = 'video';
+            $id = $string;
+          }
+
+        }
+
+        if (substr($string, 0, 3) === 'www' || substr($string, 0, 8) === 'youtube.') {
+          $string = 'https://'.$string;
+        }
+
+        $parsed = parse_url($string);
+
+        if (!isset($parsed['host'])) {
+          return ['type' => $type, 'id' => $id];
+        }
 
         // https://www.youtube.com/channel/UC6MFZAOHXlKK1FI7V0XQVeA
         if (strpos($parsed['path'], '/channel') === 0)
@@ -84,13 +108,27 @@ use Goutte\Client;
     }
 
     /**
-     * Determine if an id is valid
+     * Determine if an id is a channel
      * @param String $id
      * @return Boolean
      */
     public function isChannelId($id)
     {
-      if ($id[0] === 'U' && $id[1] === 'C') {
+      if ($id[0] === 'U' && $id[1] === 'C' && strlen($id) == 24) {
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Determine if an id is video
+     * @param String $id
+     * @return Boolean
+     */
+    public function isVideoId($id)
+    {
+      preg_match("/[a-zA-Z0-9_-]+/", $id, $output);
+      if (count($output) > 0 && strlen($id) == 11) {
         return true;
       }
       return false;
@@ -148,10 +186,9 @@ use Goutte\Client;
      *
      * @param String $id
      * @param String $pageToken
-     * @param App\Models\User $user
      * @return Object
      */
-    public function getChannelVideos($id,$pageToken=null,$user=false)
+    public function getChannelVideos($id,$pageToken=null)
     {
 
       $list = $this->youtube->search->listSearch(
@@ -205,6 +242,7 @@ use Goutte\Client;
 
       foreach ($list->items as $item) {
         $videos[$item->id] = [
+          'id' => $item->id,
           'title' => $item->snippet->title,
           'views' => $item->statistics->viewCount,
         ];
