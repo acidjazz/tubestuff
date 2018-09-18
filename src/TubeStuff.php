@@ -27,11 +27,11 @@ use Goutte\Client;
     */
    private $youtube;
 
-   public function __construct()
+   public function __construct($API_KEY)
    {
       $this->client = new Google_Client();
       $this->client->setApplicationName("TubeStuff");
-      $this->client->setDeveloperKey(config('services.google.api_key'));
+      $this->client->setDeveloperKey($API_KEY);
       $this->youtube = new Google_Service_YouTube($this->client);
    }
 
@@ -52,8 +52,10 @@ use Goutte\Client;
         // https://www.youtube.com/channel/UC6MFZAOHXlKK1FI7V0XQVeA
         if (strpos($parsed['path'], '/channel') === 0)
         {
-            $type = 'channel';
             $id = explode('/', $parsed['path'])[2];
+            if ($this->isChannelId($id)) {
+              $type = 'channel';
+            }
         }
 
         // https://www.youtube.com/user/ProZD
@@ -86,7 +88,7 @@ use Goutte\Client;
      * @param String $id
      * @return Boolean
      */
-    private function isChannelId($id)
+    public function isChannelId($id)
     {
       if ($id[0] === 'U' && $id[1] === 'C') {
         return true;
@@ -100,12 +102,45 @@ use Goutte\Client;
      * @param String $user
      * @return String
      */
-    private function getChannelId($user)
+    public function getChannelId($user)
     {
         $client = new Client();
         $crawler = $client->request('GET', 'https://www.youtube.com/user/'.$user);
         $url = $crawler->filter('link[rel="canonical"]')->attr('href');
         return explode('/', $url)[4];
+    }
+
+    public function getChannel($id)
+    {
+
+      if (!$this->isChannelId($id)) {
+        $id = $this->getChannelId($id);
+      }
+
+      $channel = [];
+      $item = $this->youtube->channels->listChannels(
+        ['id,snippet,topicDetails,statistics'],
+        ['id' => $id]
+      )->items[0];
+
+      $channel['id'] = $id;
+      $channel['name'] = $item->snippet->title;
+      $channel['description'] = $item->snippet->description;
+      $channel['logo'] = $item->snippet->thumbnails->high->url;
+
+      if (isset($item->topicDetails)) {
+        $categories = [];
+        foreach ($item->topicDetails->topicCategories as $category) {
+          $categories[] = $this->refine(str_replace('_', ' ', explode('wiki/', $category)[1]));
+        }
+        $channel['categories'] = array_values($categories);
+      }
+
+      $channel['subs'] = $item->statistics->subscriberCount;
+      $channel['uploads'] = $item->statistics->videoCount;
+      $channel['views'] = $item->statistics->viewCount;
+
+      return $channel;
     }
 
     /**
@@ -116,7 +151,7 @@ use Goutte\Client;
      * @param App\Models\User $user
      * @return Object
      */
-    public function getChannel($id,$pageToken=null,$user=false)
+    public function getChannelVideos($id,$pageToken=null,$user=false)
     {
 
       $list = $this->youtube->search->listSearch(
@@ -183,7 +218,7 @@ use Goutte\Client;
      * @param String $id
      * @return Object
      */
-    private function getPopularVideo($id) {
+    public function getPopularVideo($id) {
       $videos = [];
       $listSearch = $this->youtube->search->listSearch(['snippet'], [
         'channelId' => $id, 
@@ -198,6 +233,39 @@ use Goutte\Client;
 
       return false;
 
+    }
+
+    /**
+     * Normalize the returned YouTube Channel Categories
+     *
+     * @param String $category
+     * @return String
+     */
+    private function refine($category)
+    {
+      $category =  trim(ucwords(strtolower($category)));
+      if ($category == 'Lifestyle (sociology)') {
+        return 'Lifestyle';
+      }
+      if ($category == 'Sports') {
+        return 'Sport';
+      }
+      if ($category == 'Humor') {
+        return 'Comedy';
+      }
+      if ($category == 'Humour') {
+        return 'Comedy';
+      }
+      if ($category == 'Pet') {
+        return 'Animals';
+      }
+      if ($category == 'Diy') {
+        return 'DIY';
+      }
+      if ($category == 'Association Football') {
+        return 'Soccer';
+      }
+      return $category;
     }
 
  }
