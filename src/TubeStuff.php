@@ -244,6 +244,7 @@ use Goutte\Client;
         $videos[$item->id] = [
           'id' => $item->id,
           'title' => $item->snippet->title,
+          'description' => $item->snippet->description,
           'views' => $item->statistics->viewCount,
         ];
       }
