@@ -207,6 +207,7 @@ use Goutte\Client;
         $results['videos'][$item->id->videoId] = [
           'id' => $item->id->videoId,
           'title' => $item->snippet->title,
+          'description' => $item->snippet->description,
           'cover' => self::cover($item->id->videoId),
           'added' => false,
         ];
