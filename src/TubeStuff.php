@@ -31,7 +31,7 @@ use Goutte\Client;
     * Category list for the US region
     */
    private $categories = [
-      1 => 'Film & Animation ',
+      1 => 'Film & Animation',
       2 => 'Autos & Vehicles',
       10 => 'Music',
       15 => 'Pets & Animals',
