@@ -124,7 +124,14 @@ use Goutte\Client;
         if (strpos($parsed['path'], '/user') === 0)
         {
             $type = 'channel';
-            $id = $this->getChannelId(explode('/', $parsed['path'])[2]);
+            $id = $this->getChannelId('user/'.explode('/', $parsed['path'])[2]);
+        }
+
+
+        // https://www.youtube.com/idubbbztv
+        if (count((explode('/', $parsed['path']))) == 2 && !isset($parsed['query'])) {
+          $type = 'channel';
+          $id = $this->getChannelId(explode('/', $parsed['path'])[1]);
         }
 
         // https://www.youtube.com/watch?v=4ZK8Z8hulFg
@@ -178,10 +185,10 @@ use Goutte\Client;
      * @param String $user
      * @return String
      */
-    public function getChannelId($user)
+    private function getChannelId($user)
     {
         $client = new Client();
-        $crawler = $client->request('GET', 'https://www.youtube.com/user/'.$user);
+        $crawler = $client->request('GET', 'https://www.youtube.com/'.$user);
         $url = $crawler->filter('link[rel="canonical"]')->attr('href');
         return explode('/', $url)[4];
     }
@@ -190,7 +197,7 @@ use Goutte\Client;
     {
 
       if (!$this->isChannelId($id)) {
-        $id = $this->getChannelId($id);
+        $id = $this->getChannelId('user/'.$id);
       }
 
       $channel = [];
