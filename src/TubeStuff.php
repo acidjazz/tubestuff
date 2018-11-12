@@ -67,7 +67,11 @@ use Goutte\Client;
 
    public function __construct($API_KEY=false)
    {
-     if ($API_KEY !== false) {
+     if ($API_KEY === false) {
+       $API_KEY = config('services.google.api_key');
+     }
+     
+     if ($API_KEY !== null) {
         $this->client = new Google_Client();
         $this->client->setApplicationName("TubeStuff");
         $this->client->setDeveloperKey($API_KEY);
