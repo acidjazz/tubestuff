@@ -286,17 +286,19 @@ use Goutte\Client;
 
       $videos = [];
       $list = $this->youtube->videos->listVideos(
-        ['statistics,snippet'],
+        ['statistics,snippet,contentDetails'],
         ['id' => implode(',', $ids), 'maxResults' => count($ids)]
       );
 
 
       foreach ($list->items as $item) {
+        dump($item);
         $videos[$item->id] = [
           'id' => $item->id,
           'title' => $item->snippet->title,
           'description' => $item->snippet->description,
           'views' => $item->statistics->viewCount,
+          'duration' => $item->contentDetails->duration,
         ];
         if (isset($this->categories[$item->snippet->categoryId])) {
           $videos[$item->id]['category'] = $this->categories[$item->snippet->categoryId];
