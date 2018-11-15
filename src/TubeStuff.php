@@ -292,7 +292,6 @@ use Goutte\Client;
 
 
       foreach ($list->items as $item) {
-        dump($item);
         $videos[$item->id] = [
           'id' => $item->id,
           'title' => $item->snippet->title,
